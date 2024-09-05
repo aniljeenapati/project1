@@ -1,5 +1,5 @@
 provider "google" {
-  project = "<your-gcp-project-id>"
+  project = "kube-434706"
   region  = "us-central1"
   credentials = file("<path-to-service-account-key>.json")
 }
