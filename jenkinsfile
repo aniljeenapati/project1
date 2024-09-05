@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+
+    environment {
+        PROJECT_ID = "<your-gcp-project-id>"
+        CLUSTER_NAME = "my-gke-cluster"
+        CONTAINER_REGISTRY = "gcr.io/${PROJECT_ID}/my-python-app"
+        GKE_CLUSTER_ZONE = "us-central1-c"
+    }
+stages {
+        stage('Terraform Init') {
+            steps {
+                script {
+                    sh "terraform init"
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    //sh "terraform refresh "
+                   // sh "terraform destroy -auto-approve"
+                    sh "terraform apply -auto-approve"
+                }
+            }
+        }
+
+        stage('Clone Git Repo') {
+            steps {
+                git url: 'https://github.com/your-repo/python-app.git', branch: 'main'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build("${CONTAINER_REGISTRY}:${env.BUILD_ID}")
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://gcr.io', 'gcp-service-account') {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to GKE') {
+            steps {
+                script {
+                    sh '''
+                    gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project ${PROJECT_ID}
+                    kubectl apply -f kubernetes_deployment.yaml
+                    '''
+                }
+            }
+        }
+    }
+}
