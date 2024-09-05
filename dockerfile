@@ -15,6 +15,7 @@ EXPOSE 80
 
 # Define environment variable
 ENV NAME World
+ENV OWNER Anil
 
 # Run the application
 CMD ["python", "app.py"]
