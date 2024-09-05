@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-web-app
+  name: flask-app
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
-      app: my-web-app
+      app: flask-app
   template:
     metadata:
       labels:
-        app: my-web-app
+        app: flask-app
     spec:
       containers:
-      - name: my-web-app
-        image: docker.io/<your-dockerhub-username>/my-app:latest
+      - name: flask-container
+        image: gcr.io/kube-434706/my-python-app:${env.BUILD_ID}
         ports:
-        - containerPort: 80
+        - containerPort: 5000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-web-app-service
+  name: flask-service
 spec:
-  selector:
-    app: my-web-app
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
   type: LoadBalancer
+  selector:
+    app: flask-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
