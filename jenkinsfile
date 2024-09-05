@@ -2,9 +2,11 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_ID = "<your-gcp-project-id>"
+        PROJECT_ID = "kube-434706"
         CLUSTER_NAME = "my-gke-cluster"
-        CONTAINER_REGISTRY = "gcr.io/${PROJECT_ID}/my-python-app"
+        CONTAINER_REGISTRY = "gcr.io/$kube-434706/my-python-app"
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-key')
+        GIT_TOKEN = credentials('git-tokenn')
         GKE_CLUSTER_ZONE = "us-central1-c"
     }
 stages {
@@ -28,7 +30,7 @@ stages {
 
         stage('Clone Git Repo') {
             steps {
-                git url: 'https://github.com/your-repo/python-app.git', branch: 'main'
+                git branch: 'main', url: 'https://github.com/aniljeenapati/project1.git'
             }
         }
 
