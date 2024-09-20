@@ -1,9 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-app
+  name: demo-app_deployment
+  labels:
+    app: flask-app
 spec:
-  replicas: 2
+  replicas: 1  # Number of pod replicas
   selector:
     matchLabels:
       app: flask-app
@@ -13,20 +15,20 @@ spec:
         app: flask-app
     spec:
       containers:
-      - name: flask-container
-        image: gcr.io/kube-434706/my-python-app:${env.BUILD_ID}
+      - name: flask-app-container
+        image: aniljeenapati/demo:latest
         ports:
-        - containerPort: 5000
+        - containerPort: 5000  # Change this to the port your application listens on
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-service
+  name: demo-app-service
 spec:
-  type: LoadBalancer
+  type: LoadBalancer  # Expose the service externally
   selector:
-    app: flask-app
+    app: demo-app
   ports:
   - protocol: TCP
-    port: 80
-    targetPort: 5000
+    port: 5000       # Port for external access
+    targetPort: 5000  # Port your application listens on in the container
