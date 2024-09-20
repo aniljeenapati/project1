@@ -1,66 +1,62 @@
 pipeline {
     agent any
-
-    environment {
-        PROJECT_ID = "kube-434706"
-        CLUSTER_NAME = "my-gke-cluster"
-        CONTAINER_REGISTRY = "gcr.io/$kube-434706/my-python-app"
-        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-key')
-        GIT_TOKEN = credentials('git-tokenn')
-        GKE_CLUSTER_ZONE = "us-central1-c"
+    parameters {
+        string(name: 'CLUSTER_NAME', defaultValue: 'my-cluster1', description: 'The GKE cluster name')
+        string(name: 'ZONE', defaultValue: 'us-central1', description: 'The GCP zone')
+        string(name: 'PROJECT_ID', defaultValue: 'kube-435112', description: 'The GCP project ID')
+        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'The GitHub branch to build') 
     }
-stages {
-        stage('Terraform Init') {
+    environment {
+        DOCKER_IMAGE_TAG = "aniljeenapati/demo1:${env.BUILD_NUMBER ?: 'latest'}"
+    }
+    stages {
+        stage('Git Checkout') {
             steps {
-                script {
-                    sh "terraform init"
-                }
+                git url: 'https://github.com/aniljeenapati/project1.git', branch: params.GIT_BRANCH
             }
         }
-
-        stage('Terraform Apply') {
-            steps {
-                script {
-                    //sh "terraform refresh "
-                   // sh "terraform destroy -auto-approve"
-                    sh "terraform apply -auto-approve"
-                }
-            }
-        }
-
-        stage('Clone Git Repo') {
-            steps {
-                git branch: 'main', url: 'https://github.com/aniljeenapati/project1.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                script {
-                    dockerImage = docker.build("${CONTAINER_REGISTRY}:${env.BUILD_ID}")
-                }
+                sh "docker build -t ${DOCKER_IMAGE_TAG} ."
             }
         }
-
         stage('Push Docker Image') {
             steps {
-                script {
-                    docker.withRegistry('https://gcr.io', 'gcp-service-account') {
-                        dockerImage.push()
-                    }
+                withCredentials([usernamePassword(credentialsId: 'jenkins-docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh """
+                    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                    docker push ${DOCKER_IMAGE_TAG}
+                    """
                 }
             }
         }
-
-        stage('Deploy to GKE') {
+        stage('Terraform Init') {
             steps {
-                script {
-                    sh '''
-                    gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project ${PROJECT_ID}
-                    kubectl apply -f kubernetes_deployment.yaml
-                    '''
+                sh 'terraform init'
+            }
+        }
+        stage('Terraform Apply') {
+            steps {
+                withCredentials([file(credentialsId: 'gcp-sa', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    sh 'terraform apply -auto-approve'
                 }
             }
+        }
+        stage('Deploy to GKE') {
+            steps {
+                withCredentials([file(credentialsId: 'gcp-sa', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
+                    sh "gcloud container clusters get-credentials ${params.CLUSTER_NAME} --zone ${params.ZONE} --project ${params.PROJECT_ID}"
+
+                    // Create or update Kubernetes deployment
+                    sh 'kubectl apply -f deploy.yaml'
+                }
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs()
         }
     }
 }
