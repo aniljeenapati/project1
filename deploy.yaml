@@ -30,5 +30,5 @@ spec:
     app: demo-app
   ports:
   - protocol: TCP
-    port: 5000       # Port for external access
+    port: 80       # Port for external access
     targetPort: 5000  # Port your application listens on in the container
