@@ -7,7 +7,7 @@ pipeline {
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'The GitHub branch to build')
     }
     environment {
-        DOCKER_IMAGE_TAG = "anilbhagath/demo:${env.BUILD_ID}"
+       // DOCKER_IMAGE_TAG = "anilbhagath/demo:${env.BUILD_ID}"
         DOCKER_IMAGE_TAG = "sekhar1913/demo:${env.BUILD_ID}"
     }
     stages {
