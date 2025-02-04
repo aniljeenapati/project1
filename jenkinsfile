@@ -2,12 +2,12 @@ pipeline {
     agent any
     parameters {
         string(name: 'CLUSTER_NAME', defaultValue: 'my-cluster1', description: 'The GKE cluster name')
-        string(name: 'ZONE', defaultValue: 'us-central1', description: 'The GCP zone')
+        string(name: 'ZONE', defaultValue: 'us-west1', description: 'The GCP zone')
         string(name: 'PROJECT_ID', defaultValue: 'kube-435112', description: 'The GCP project ID')
-        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'The GitHub branch to build') 
+        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'The GitHub branch to build')
     }
     environment {
-        DOCKER_IMAGE_TAG = "aniljeenapati/demo1:${env.BUILD_NUMBER ?: 'latest'}"
+        DOCKER_IMAGE_TAG = "aniljeenapati/demo1:${env.BUILD_ID}"
     }
     stages {
         stage('Git Checkout') {
@@ -48,7 +48,7 @@ pipeline {
                     sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
                     sh "gcloud container clusters get-credentials ${params.CLUSTER_NAME} --zone ${params.ZONE} --project ${params.PROJECT_ID}"
 
-                    // Create or update Kubernetes deployment
+                    sh "sed -i 's/tagversion/${env.BUILD_ID}/g' deploy.yaml"
                     sh 'kubectl apply -f deploy.yaml'
                 }
             }
