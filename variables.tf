@@ -1,7 +1,7 @@
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
-  default     = "kube-435112"  
+  default     = "anil-449609"  
 }
 
 variable "region" {
