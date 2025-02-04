@@ -1,7 +1,7 @@
 pipeline {
     agent any
     parameters {
-        string(name: 'CLUSTER_NAME', defaultValue: 'my-cluster1', description: 'The GKE cluster name')
+        string(name: 'CLUSTER_NAME', defaultValue: 'my-cluster', description: 'The GKE cluster name')
         string(name: 'ZONE', defaultValue: 'us-west1', description: 'The GCP zone')
         string(name: 'PROJECT_ID', defaultValue: 'anil-449609', description: 'The GCP project ID')
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'The GitHub branch to build')
@@ -22,7 +22,7 @@ pipeline {
         }
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'jenkins-docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'dp', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh """
                     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
                     docker push ${DOCKER_IMAGE_TAG}
