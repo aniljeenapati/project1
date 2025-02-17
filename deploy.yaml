@@ -6,6 +6,7 @@ metadata:
     app: flask-app
 spec:
   replicas: 1  # Number of pod replicas
+  revisionHistoryLimit: 3  # Keeps last 5 revisions for rollback
   selector:
     matchLabels:
       app: flask-app
