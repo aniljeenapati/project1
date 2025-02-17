@@ -49,7 +49,7 @@ pipeline {
                     sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
                     sh "gcloud container clusters get-credentials ${params.CLUSTER_NAME} --zone ${params.ZONE} --project ${params.PROJECT_ID}"
 
-                   // sh "sed -i 's/tagversion/${env.BUILD_ID}/g' deploy.yaml"
+                    sh "sed -i 's/tagversion/${env.BUILD_ID}/g' deploy.yaml"
                     sh 'kubectl apply -f deploy.yaml'
                 }
             }
