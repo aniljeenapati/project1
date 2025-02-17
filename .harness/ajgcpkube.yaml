@@ -1,0 +1,17 @@
+environment:
+  name: aj-gcp-kube
+  identifier: ajgcpkube
+  orgIdentifier: default
+  projectIdentifier: SFTY_Training
+  description: ""
+  tags: {}
+  type: Production
+  yaml: |
+    environment:
+      name: aj-gcp-kube
+      identifier: ajgcpkube
+      orgIdentifier: default
+      projectIdentifier: SFTY_Training
+      description: ""
+      tags: {}
+      type: ""
