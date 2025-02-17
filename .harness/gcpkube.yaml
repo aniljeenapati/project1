@@ -7,7 +7,7 @@ service:
     spec:
       configFiles:
         - configFile:
-            identifier: deploy.yaml
+            identifier: deploy
             spec:
               store:
                 type: Github
