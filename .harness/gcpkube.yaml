@@ -1,0 +1,5 @@
+service:
+  name: gcp-kube
+  identifier: gcpkube
+  orgIdentifier: default
+  projectIdentifier: SFTY_Training
