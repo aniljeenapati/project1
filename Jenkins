@@ -1,0 +1,26 @@
+        stage('Install Prometheus and Grafana') {
+            steps {
+                script {
+                    // Install Prometheus and Grafana using Helm
+                    sh """
+                    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                    helm repo update
+                    """
+                    
+                    // Create the monitoring namespace
+                    sh """
+                    kubectl create namespace monitoring || echo 'Monitoring namespace already exists'
+                    """
+                    
+                    // Install Prometheus and Grafana in the monitoring namespace
+                    sh """
+                    helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring
+                    """
+                    
+                    // Change Prometheus service to LoadBalancer
+                    sh """
+                    kubectl patch svc prometheus-kube-prometheus-prometheus -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
+                    """
+                }
+            }
+        }
