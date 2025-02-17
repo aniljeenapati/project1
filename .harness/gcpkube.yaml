@@ -3,3 +3,19 @@ service:
   identifier: gcpkube
   orgIdentifier: default
   projectIdentifier: SFTY_Training
+  serviceDefinition:
+    spec:
+      configFiles:
+        - configFile:
+            identifier: deploy.yaml
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: ajgit
+                  gitFetchType: Branch
+                  paths:
+                    - project1/deploy.yaml
+                  repoName: project1
+                  branch: main
+    type: Kubernetes
