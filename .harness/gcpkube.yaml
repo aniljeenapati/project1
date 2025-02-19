@@ -18,4 +18,20 @@ service:
                     - project1/deploy.yaml
                   repoName: project1
                   branch: main
+      manifests:
+        - manifest:
+            identifier: deployfile
+            type: K8sManifest
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: ajhargit
+                  gitFetchType: Branch
+                  paths:
+                    - deploy.yml
+                  repoName: harness-git
+                  branch: main
+              skipResourceVersioning: false
+              enableDeclarativeRollback: false
     type: Kubernetes
